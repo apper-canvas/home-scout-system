@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { cn } from "@/utils/cn";
+import { useSelector } from "react-redux";
+import { AuthContext } from "../../App";
 import ApperIcon from "@/components/ApperIcon";
-import SearchBar from "@/components/molecules/SearchBar";
 import ViewToggle from "@/components/molecules/ViewToggle";
+import SearchBar from "@/components/molecules/SearchBar";
 import Button from "@/components/atoms/Button";
-
+import { cn } from "@/utils/cn";
 const Header = ({ 
   onSearch, 
   currentView, 
@@ -62,16 +63,20 @@ const Header = ({
                 )}
               </Link>
             ))}
-          </nav>
+</nav>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-          >
-            <ApperIcon name={isMobileMenuOpen ? "X" : "Menu"} className="w-5 h-5" />
-          </button>
-        </div>
+          {/* User Actions */}
+          <div className="flex items-center space-x-4">
+            <UserActions />
+            
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+            >
+              <ApperIcon name={isMobileMenuOpen ? "X" : "Menu"} className="w-5 h-5" />
+            </button>
+          </div>
 
         {/* Search Bar and View Toggle */}
         <div className="pb-4 space-y-4">
@@ -115,8 +120,40 @@ const Header = ({
             ))}
           </nav>
         </div>
-      )}
+)}
     </header>
+  );
+};
+const UserActions = () => {
+  const { user, isAuthenticated } = useSelector((state) => state.user);
+  const { logout } = useContext(AuthContext);
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  return (
+    <div className="flex items-center space-x-3">
+      <div className="hidden md:flex items-center space-x-2">
+        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+          <span className="text-white text-sm font-medium">
+            {user?.firstName?.charAt(0) || user?.emailAddress?.charAt(0) || 'U'}
+          </span>
+        </div>
+        <span className="text-sm text-gray-700">
+          {user?.firstName || user?.emailAddress || 'User'}
+        </span>
+      </div>
+      <Button
+        onClick={logout}
+        variant="outline"
+        size="sm"
+        className="flex items-center space-x-1"
+      >
+        <ApperIcon name="LogOut" className="w-4 h-4" />
+        <span>Logout</span>
+      </Button>
+    </div>
   );
 };
 
